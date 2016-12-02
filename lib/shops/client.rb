@@ -5,18 +5,20 @@ module Shops
     GMAPS_DOMAIN = 'https://maps.googleapis.com'
     GMAPS_PLACES = '/maps/api/place/nearbysearch/json'
 
-    def fetch_all(params={})
-      params = default_params.merge(params)
-      results = []
+    def fetch_all(start_params={})
+      with_retry do
+        params = default_params.merge(start_params)
+        results = []
 
-      begin
-        response = fetch_page(params)
-        results.concat(response.results)
+        begin
+          response = fetch_page(params)
+          results.concat(response.results)
 
-        params = base_params.merge({ pagetoken: response.next_page_token })
-      end while response.next_page_token && response.next_page_token != ''
+          params = base_params.merge({ pagetoken: response.next_page_token })
+        end while response.next_page_token && response.next_page_token != ''
 
-      results
+        results
+      end
     end
 
     def fetch_page(params)
@@ -24,6 +26,20 @@ module Shops
     end
 
     private
+
+    def with_retry(attempts: 3, &block)
+      tries ||= attempts
+
+      block.call
+    rescue Exception => e
+      unless (tries -= 1).zero?
+        puts "failed - retrying..."
+        sleep 2
+        retry
+      end
+
+      puts e.inspect
+    end
 
     def default_params
       base_params.merge({

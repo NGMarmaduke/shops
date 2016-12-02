@@ -5,6 +5,24 @@ module Shops
 
     attr_reader :min_lat, :max_lat, :max_lon, :min_lon
 
+    def self.holborn
+      new(
+        min_lat: 51.515786,
+        max_lat: 51.518910,
+        max_lon: -0.114668,
+        min_lon: -0.123980,
+      )
+    end
+
+    def self.hammersmith
+      new(
+        min_lat: 51.492625,
+        max_lat: 51.500693,
+        max_lon: -0.204647,
+        min_lon: -0.242155,
+      )
+    end
+
     def initialize(min_lat:, max_lat:, max_lon:, min_lon:)
       @min_lat = min_lat
       @max_lat = max_lat
@@ -12,8 +30,8 @@ module Shops
       @min_lon = min_lon
     end
 
-    def print
-      grid.each{ |g| puts g.join(',') }
+    def coords
+      grid.map{ |coord| coord.join(',') }
     end
 
     def grid
